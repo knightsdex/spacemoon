@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Spacemoon | To the moon, on the chain</title>
+<meta name="description" content="Spacemoon is a rewards token on BNB Chain. Hold $SPACEMOON, earn $SPCX rewards. Powered by bStocks." />
+<link rel="icon" type="image/jpeg" href="assets/logo.jpg" />
+<meta property="og:title" content="Spacemoon" />
+<meta property="og:description" content="Hold $SPACEMOON, earn $SPCX rewards. Powered by bStocks." />
+<meta property="og:image" content="assets/logo.jpg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.2/ethers.umd.min.js"></script>
+<style>
+:root{
+  --bg:#05060b; --bg2:#080a14;
+  --ink:#ffffff; --mut:#9aa6bd; --dim:#5b6478;
+  --silver:#dbe3f0; --glow:#7fb2ff; --glow2:#bcd4ff;
+  --line:rgba(255,255,255,.10); --line2:rgba(255,255,255,.18);
+  --card:rgba(255,255,255,.025);
+  --r:18px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2,h3,.ff{font-family:'Space Grotesk',sans-serif;letter-spacing:-.01em}
+a{color:inherit;text-decoration:none}
+svg{display:block}
+.wrap{max-width:1160px;margin:0 auto;padding:0 22px}
+.ic{width:1em;height:1em;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
+
+/* starfield */
+#sky{position:fixed;inset:0;z-index:0;display:block;background:
+  radial-gradient(1200px 700px at 50% -10%, #11162a 0%, rgba(8,10,20,0) 60%),
+  radial-gradient(900px 600px at 88% 105%, #0c1024 0%, rgba(5,6,11,0) 55%), var(--bg);}
+
+/* nav */
+header{position:fixed;top:0;left:0;right:0;z-index:50;transition:background .3s,border-color .3s,backdrop-filter .3s;border-bottom:1px solid transparent}
+header.scrolled{background:rgba(5,6,11,.72);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.nav{display:flex;align-items:center;justify-content:space-between;height:70px}
+.brand{display:flex;align-items:center;gap:11px;font-family:'Space Grotesk';font-weight:600;font-size:18px}
+.brand img{width:36px;height:36px;border-radius:50%;box-shadow:0 0 22px rgba(127,178,255,.35)}
+.brand b{font-weight:600;background:linear-gradient(90deg,#fff,#bcd4ff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.nav-links{display:flex;align-items:center;gap:30px}
+.nav-links a:not(.btn){color:var(--mut);font-size:14.5px;font-weight:500;transition:color .2s}
+.nav-links a:not(.btn):hover{color:#fff}
+.navx{display:inline-flex;align-items:center;justify-content:center;color:var(--mut);transition:color .2s,transform .2s}
+.navx:hover{color:#fff;transform:translateY(-1px)}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Space Grotesk';font-weight:600;font-size:14.5px;padding:11px 20px;border-radius:999px;cursor:pointer;border:1px solid transparent;transition:transform .15s,box-shadow .2s,background .2s;white-space:nowrap}
+.btn .ic{width:16px;height:16px}
+.btn-buy{color:#05060b;background:linear-gradient(135deg,#ffffff,#cfe0ff);box-shadow:0 6px 24px rgba(127,178,255,.28)}
+.btn-buy:hover{transform:translateY(-2px);box-shadow:0 10px 34px rgba(127,178,255,.42)}
+.btn-ghost{color:#fff;border:1px solid var(--line2);background:rgba(255,255,255,.02)}
+.btn-ghost:hover{border-color:#fff;background:rgba(255,255,255,.06)}
+.burger{display:none;flex-direction:column;gap:5px;background:none;border:0;cursor:pointer;padding:8px}
+.burger span{width:24px;height:2px;background:#fff;border-radius:2px;transition:.25s}
+.burger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.burger.open span:nth-child(2){opacity:0}
+.burger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+
+main{position:relative;z-index:1}
+
+/* custom scrollbar */
+html{scrollbar-width:thin;scrollbar-color:#5b6e8f #0a0c14}
+::-webkit-scrollbar{width:12px;height:12px}
+::-webkit-scrollbar-track{background:#0a0c14;border-left:1px solid var(--line)}
+::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#5b6e8f,#34415c);border:3px solid #0a0c14;border-radius:999px}
+::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,#8fb0e0,#5b78a8)}
+::-webkit-scrollbar-button:vertical:start{height:14px;background:#0a0c14}
+::-webkit-scrollbar-button:vertical:end{height:14px;background:#0a0c14}
+::-webkit-scrollbar-corner{background:#0a0c14}
+
+/* HERO split */
+.hero{min-height:100vh;display:grid;grid-template-columns:1.05fr .95fr;align-items:center;gap:40px;padding:110px 0 70px}
+.hero .wrap{display:contents}
+.hero-l{padding-left:max(22px,calc((100vw - 1160px)/2 + 22px))}
+.hero-r{position:relative;height:520px;display:flex;align-items:center;justify-content:center;padding-right:max(22px,calc((100vw - 1160px)/2 + 22px))}
+.kick{display:inline-flex;align-items:center;gap:9px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--glow2);border:1px solid var(--line2);padding:6px 14px;border-radius:999px;margin-bottom:22px;background:rgba(127,178,255,.05)}
+.kick .dot{width:6px;height:6px;border-radius:50%;background:#7fff9f;box-shadow:0 0 8px #7fff9f;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.hero h1{font-size:clamp(44px,6.4vw,82px);line-height:.98;margin:0 0 20px;font-weight:700}
+.hero h1 .g{background:linear-gradient(180deg,#ffffff 25%,#9fc0ff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero p.sub{max-width:500px;color:var(--mut);font-size:clamp(15.5px,2vw,18px);margin:0 0 30px}
+.hero-cta{display:flex;gap:13px;flex-wrap:wrap}
+.hero-cta .btn{padding:14px 24px;font-size:15px}
+/* mini stat row */
+.minis{display:flex;gap:30px;margin-top:34px;flex-wrap:wrap}
+.mini .v{font-family:'Space Grotesk';font-weight:700;font-size:24px;line-height:1;background:linear-gradient(180deg,#fff,#a9c6ff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.mini .l{font-size:12px;color:var(--dim);letter-spacing:.04em;margin-top:6px}
+.castrip{margin-top:30px;display:none;align-items:center;gap:10px;max-width:100%;border:1px solid var(--line);background:rgba(255,255,255,.02);border-radius:999px;padding:8px 8px 8px 15px;width:fit-content}
+.castrip code{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;color:var(--silver);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:60vw}
+.castrip .cp{background:rgba(255,255,255,.06);border:1px solid var(--line);color:#fff;border-radius:999px;padding:6px 13px;font-size:12px;cursor:pointer;font-family:'Space Grotesk';font-weight:600;transition:.2s;display:inline-flex;gap:6px;align-items:center}
+.castrip .cp:hover{background:#fff;color:#05060b}
+
+/* orbiting logo */
+.orbit{position:relative;width:min(440px,80vw);aspect-ratio:1}
+.orbit .ring{position:absolute;inset:0;border:1px solid var(--line);border-radius:50%}
+.orbit .r2{inset:11%;border-color:rgba(127,178,255,.14)}
+.orbit .r3{inset:24%;border-color:rgba(255,255,255,.06)}
+.orbit .spin{position:absolute;inset:0;animation:spin 26s linear infinite}
+.orbit .spin.s2{inset:11%;animation:spin 18s linear infinite reverse}
+.orbit .planet{position:absolute;top:-5px;left:50%;width:10px;height:10px;border-radius:50%;background:var(--glow2);box-shadow:0 0 12px var(--glow2);transform:translateX(-50%)}
+.orbit .spin.s2 .planet{width:7px;height:7px;background:#fff;box-shadow:0 0 10px #fff}
+@keyframes spin{to{transform:rotate(360deg)}}
+.orbit .core{position:absolute;inset:33%;border-radius:50%;animation:float 6s ease-in-out infinite;
+  box-shadow:0 0 0 1px rgba(255,255,255,.08),0 0 60px rgba(127,178,255,.34),0 0 130px rgba(127,178,255,.18)}
+.orbit .core img{width:100%;height:100%;border-radius:50%;display:block}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.scrollhint{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);color:var(--dim);font-size:11px;letter-spacing:.14em;text-transform:uppercase;display:flex;flex-direction:column;align-items:center;gap:8px;z-index:2}
+.scrollhint .mouse{width:21px;height:33px;border:1.5px solid var(--line2);border-radius:12px;position:relative}
+.scrollhint .mouse::after{content:"";position:absolute;left:50%;top:7px;width:3px;height:7px;border-radius:2px;background:var(--glow2);transform:translateX(-50%);animation:wheel 1.6s ease-in-out infinite}
+@keyframes wheel{0%{opacity:0;transform:translate(-50%,0)}40%{opacity:1}100%{opacity:0;transform:translate(-50%,11px)}}
+
+/* sections */
+section{padding:92px 0;position:relative}
+.eyebrow{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--glow2);margin-bottom:14px;font-weight:600}
+.sec-h{font-size:clamp(28px,4.6vw,44px);margin:0 0 16px;font-weight:700}
+.sec-sub{color:var(--mut);max-width:600px;font-size:16px}
+.center{text-align:center;margin:0 auto}
+.center .sec-sub{margin-left:auto;margin-right:auto}
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s ease}
+.reveal.in{opacity:1;transform:none}
+
+/* verify */
+.verify-card{max-width:760px;margin:42px auto 0;background:linear-gradient(180deg,rgba(127,178,255,.06),rgba(255,255,255,.02));border:1px solid var(--line2);border-radius:var(--r);padding:30px;position:relative;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.45)}
+.verify-card::before{content:"";position:absolute;inset:-1px;border-radius:var(--r);padding:1px;pointer-events:none;background:linear-gradient(120deg,rgba(127,178,255,.5),transparent 40%,transparent 60%,rgba(188,212,255,.4));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:.5}
+.verify-row{display:flex;gap:12px;flex-wrap:wrap}
+.verify-row input{flex:1;min-width:240px;background:rgba(0,0,0,.35);border:1px solid var(--line2);color:#fff;border-radius:12px;padding:15px 16px;font-size:15px;font-family:ui-monospace,Menlo,monospace;outline:none;transition:.2s}
+.verify-row input:focus{border-color:var(--glow);box-shadow:0 0 0 3px rgba(127,178,255,.18)}
+.verify-row input::placeholder{color:var(--dim)}
+.verify-row .btn{padding:15px 26px}
+.verify-out{margin-top:20px;display:none}
+.verify-out.show{display:block;animation:fadein .4s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.vgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.vstat{background:rgba(0,0,0,.3);border:1px solid var(--line);border-radius:12px;padding:16px}
+.vstat .l{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin-bottom:6px}
+.vstat .v{font-family:'Space Grotesk';font-weight:700;font-size:20px;color:#fff}
+.vstat .v small{font-size:12.5px;color:var(--mut);font-weight:500}
+.vnote{margin-top:14px;font-size:13px;color:var(--dim)}
+.vmsg{font-size:14px;color:var(--glow2);margin-top:14px;min-height:0}
+
+#rewards{padding:40px 22px}
+#rewards img{display:block;margin:0 auto;max-width:min(1200px,100%)}
+
+/* live rewards distributed */
+.distcard{max-width:780px;margin:0 auto;text-align:center;border:1px solid var(--line2);border-radius:24px;padding:46px 30px;
+  background:radial-gradient(620px 280px at 50% 0%,rgba(127,178,255,.12),rgba(255,255,255,.012));position:relative;overflow:hidden;
+  box-shadow:0 30px 80px rgba(0,0,0,.4)}
+.livedot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#7fff9f;box-shadow:0 0 9px #7fff9f;margin-right:7px;vertical-align:middle;animation:pulse 2s infinite}
+.distnum{font-family:'Space Grotesk';font-weight:700;font-size:clamp(44px,9vw,76px);line-height:1;letter-spacing:-.02em;
+  background:linear-gradient(180deg,#ffffff 30%,#9fc0ff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.distnum .dunit{font-size:.38em;color:var(--glow2);-webkit-text-fill-color:var(--glow2);vertical-align:middle;margin-left:6px}
+.distusd{margin-top:12px;font-family:'Space Grotesk';font-weight:700;font-size:clamp(20px,3.4vw,28px);color:var(--glow2)}
+.distlabel{margin-top:14px;color:var(--silver);font-size:clamp(15px,2.2vw,18px);font-weight:500}
+.distmeta{margin-top:8px;color:var(--dim);font-size:13.5px}
+.disttimer{margin-top:22px;display:inline-flex;align-items:center;gap:12px;border:1px solid var(--line2);border-radius:999px;padding:9px 9px 9px 18px;background:rgba(0,0,0,.25)}
+.disttimer .tlabel{font-size:13px;color:var(--mut);letter-spacing:.02em}
+.disttimer .tval{font-family:'Space Grotesk';font-weight:700;font-size:16px;color:#fff;background:rgba(127,178,255,.12);border:1px solid var(--line2);border-radius:999px;padding:5px 14px;min-width:64px;text-align:center;font-variant-numeric:tabular-nums}
+.disttimer .tval.ready{color:#7fff9f;border-color:rgba(127,255,159,.4);background:rgba(127,255,159,.1);text-transform:uppercase;letter-spacing:.08em;font-size:13px}
+
+/* tokenomics */
+.tgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:44px}
+.tcard{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:26px 22px;text-align:left;transition:transform .25s,border-color .25s,background .25s}
+.tcard:hover{transform:translateY(-6px);border-color:var(--line2);background:rgba(127,178,255,.05)}
+.tcard .ico{width:42px;height:42px;border-radius:11px;display:grid;place-items:center;margin-bottom:16px;background:rgba(127,178,255,.10);border:1px solid var(--line2);color:var(--glow2)}
+.tcard .ico .ic{width:21px;height:21px}
+.tcard .big{font-family:'Space Grotesk';font-weight:700;font-size:30px;line-height:1;margin-bottom:8px;background:linear-gradient(180deg,#fff,#a9c6ff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.tcard .lab{color:var(--mut);font-size:14px}
+
+/* steps */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:44px}
+.step{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:28px;position:relative}
+.step .n{font-family:'Space Grotesk';font-weight:700;font-size:15px;color:var(--glow2);width:34px;height:34px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line2);margin-bottom:16px}
+.step h3{margin:0 0 8px;font-size:19px}
+.step p{margin:0;color:var(--mut);font-size:14.5px}
+
+/* band */
+.band{text-align:center;border:1px solid var(--line2);border-radius:26px;padding:58px 30px;background:radial-gradient(700px 300px at 50% 0%,rgba(127,178,255,.12),rgba(255,255,255,.01));position:relative;overflow:hidden}
+.band img{width:84px;height:84px;border-radius:50%;margin-bottom:22px;box-shadow:0 0 50px rgba(127,178,255,.4)}
+.band h2{font-size:clamp(28px,5vw,42px);margin:0 0 14px}
+.band p{color:var(--mut);max-width:480px;margin:0 auto 28px}
+
+/* footer */
+footer{border-top:1px solid var(--line);padding:48px 0 60px;position:relative;z-index:1}
+.foot{display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap}
+.foot .brand img{width:30px;height:30px}
+.foot-links{display:flex;gap:24px;flex-wrap:wrap;align-items:center}
+.foot-links a{color:var(--mut);font-size:14px;transition:.2s;display:inline-flex;align-items:center;gap:7px}
+.foot-links a:hover{color:#fff}
+.foot-links a .ic{width:15px;height:15px}
+.powered{display:inline-flex;align-items:center;gap:8px;color:var(--dim);font-size:13px;margin-top:20px}
+.powered .ic{width:15px;height:15px;color:var(--glow2)}
+.powered b{color:var(--silver);font-weight:600}
+.legal{color:var(--dim);font-size:12.5px;margin-top:10px;max-width:660px}
+
+@media(max-width:980px){
+  .hero{grid-template-columns:1fr;min-height:auto;padding:96px 0 46px;text-align:center;gap:30px}
+  .hero-l{padding:0 22px}
+  .hero-r{height:auto;padding:14px 0 6px;order:-1;overflow:visible}
+  .orbit{width:min(248px,60vw)}
+  .orbit .ring{opacity:.7}
+  .orbit .r3{display:none}
+  .orbit .core{inset:30%;box-shadow:0 0 0 1px rgba(255,255,255,.08),0 0 42px rgba(127,178,255,.3),0 0 80px rgba(127,178,255,.14)}
+  .hero h1{font-size:clamp(40px,11vw,60px)}
+  .hero p.sub{margin-left:auto;margin-right:auto}
+  .hero-cta,.minis{justify-content:center}
+  .hero-cta .btn{flex:1;min-width:0;justify-content:center}
+  .minis{gap:26px;margin-top:30px}
+  .castrip{margin-left:auto;margin-right:auto}
+  .scrollhint{display:none}
+}
+@media(max-width:860px){.tgrid{grid-template-columns:repeat(2,1fr)}.steps{grid-template-columns:1fr}.vgrid{grid-template-columns:1fr}}
+@media(max-width:760px){
+  .nav-links{position:fixed;inset:70px 0 auto 0;flex-direction:column;gap:0;background:rgba(7,9,18,.97);backdrop-filter:blur(16px);border-bottom:1px solid transparent;padding:0 22px;max-height:0;overflow:hidden;visibility:hidden;transition:max-height .35s ease,padding .35s ease,border-color .35s ease,visibility .35s;pointer-events:none}
+  .nav-links.open{max-height:360px;padding:14px 22px 24px;border-bottom-color:var(--line);visibility:visible;pointer-events:auto}
+  .nav-links a:not(.btn){width:100%;padding:14px 4px;border-bottom:1px solid var(--line);font-size:16px}
+  .nav-links .btn{width:100%;justify-content:center;margin-top:14px;padding:15px}
+  .burger{display:flex}
+  section{padding:70px 0}
+  .hero{padding-top:92px}
+  .hero-cta{flex-direction:column;width:100%;max-width:320px;margin:0 auto}
+  .hero-cta .btn{width:100%}
+  .minis{gap:22px}
+  .mini .v{font-size:22px}
+  .band{padding:44px 22px}
+  .verify-row{flex-direction:column}
+  .verify-row input,.verify-row .btn{width:100%}
+  .verify-row .btn{justify-content:center}
+  .distcard{padding:34px 18px;border-radius:20px}
+  .distnum{font-size:clamp(38px,13vw,56px)}
+  .disttimer{display:flex;flex-direction:column;gap:9px;padding:15px 18px;border-radius:18px;width:100%;max-width:280px;margin:22px auto 0}
+  .disttimer .tlabel{font-size:12.5px;text-align:center}
+  .disttimer .tval{width:100%;font-size:18px;padding:8px 14px}
+}
+</style>
+</head>
+<body>
+<canvas id="sky"></canvas>
+
+<header id="hdr">
+  <div class="wrap nav">
+    <a class="brand" href="#top"><img src="assets/logo.jpg" alt="Spacemoon" /><b>Spacemoon</b></a>
+    <nav class="nav-links" id="menu">
+      <a href="#tokenomics">Tokenomics</a>
+      <a href="#how">How to Buy</a>
+      <a class="navx" id="navX" href="https://x.com/spacemoononeth" target="_blank" rel="noopener" aria-label="X (Twitter)"><svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.66l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+      <a class="btn btn-buy" id="navBuy" href="https://app.uniswap.org/swap?chain=mainnet&inputCurrency=NATIVE&outputCurrency=0xComingSoon" target="_blank" rel="noopener">Buy $SPACEMOON</a>
+    </nav>
+    <button class="burger" id="burger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<main id="top">
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-l">
+      <h1>To the moon,<br><span class="g">on the chain.</span></h1>
+      <p class="sub">Spacemoon is inspired by humanity's next great frontier: becoming a multi-planetary civilization.</p>
+      <p class="sub">As visionaries push the boundaries of space exploration through reusable rockets, lunar bases, and Mars missions, Spacemoon represents the community-driven movement that believes the future belongs beyond Earth.</p>
+      <p class="sub">Elon Musk has repeatedly championed the idea of making humanity a multi-planetary species through SpaceX's Starship program and long-term Mars ambitions.</p>
+
+      <div class="hero-cta">
+        <a class="btn btn-buy" id="heroBuy" href="https://app.uniswap.org/swap?chain=mainnet&inputCurrency=NATIVE&outputCurrency=0xComingSoon" target="_blank" rel="noopener">Buy $SPACEMOON
+          <svg class="ic" viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8"/></svg></a>
+      </div>
+      <div class="minis">
+        <div class="mini"><div class="v" id="mSupply">1B</div><div class="l">Total supply</div></div>
+        <div class="mini"><div class="v">0 / 0</div><div class="l">Buy / sell tax</div></div>
+        <div class="mini"><div class="v">Burned</div><div class="l">LP</div></div>
+      </div>
+      <div class="castrip" id="castrip">
+        <code id="caText">·</code>
+        <button class="cp" id="caCopy"><svg class="ic" viewBox="0 0 24 24" style="width:13px;height:13px"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>Copy</button>
+      </div>
+    </div>
+    <div class="hero-r">
+      <div class="orbit">
+        <div class="ring"></div><div class="ring r2"></div><div class="ring r3"></div>
+        <div class="spin"><div class="planet"></div></div>
+        <div class="spin s2"><div class="planet"></div></div>
+        <div class="core"><img src="assets/logo.jpg" alt="Spacemoon logo" /></div>
+      </div>
+    </div>
+    <div class="scrollhint"><div class="mouse"></div>scroll</div>
+  </section>
+
+  <!-- LIVE REWARDS -->
+  <section id="rewards">
+    <img src="./assets/banner.png"/>
+  </section>
+
+  <!-- TOKENOMICS -->
+  <section id="tokenomics">
+    <div class="wrap center">
+      <div class="eyebrow">The Numbers</div>
+      <h2 class="sec-h">Tokenomics</h2>
+      <p class="sec-sub">Clean and simple. A fixed supply, a light tax that fuels rewards, and nothing hidden.</p>
+    </div>
+    <div class="wrap">
+      <div class="tgrid">
+        <div class="tcard reveal"><div class="ico"><svg class="ic" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg></div><div class="big" id="tSupply">1B</div><div class="lab">Total supply, fixed forever</div></div>
+        <div class="tcard reveal"><div class="ico"><svg class="ic" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 7-7"/><path d="M14 7h6v6"/></svg></div><div class="big">0%</div><div class="lab">Buy/Sell tax</div></div>
+        <div class="tcard reveal"><div class="ico"><svg class="ic" viewBox="0 0 24 24"><path d="M3 7l6 6 4-4 7 7"/><path d="M14 17h6v-6"/></svg></div><div class="big">Renounced</div><div class="lab">Contract</div></div>
+        <div class="tcard reveal"><div class="ico"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div><div class="big">Burned</div><div class="lab">LP</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW -->
+  <section id="how">
+    <div class="wrap center">
+      <div class="eyebrow">Mechanics</div>
+      <h2 class="sec-h">How to Buy</h2>
+      <p class="sec-sub">Follow the steps below to buy $SPACEMOON:</p>
+    </div>
+    <div class="wrap">
+      <div class="steps">
+        <div class="step reveal"><div class="n">1</div><h3>Get an Ethereum Wallet & ETH</h3><p>Download MetaMask or Coinbase Wallet. Create a new wallet and secure your seed phrase. Buy ETH on any major exchange like Coinbase, Binance, or Kraken.</p></div>
+        <div class="step reveal"><div class="n">2</div><h3>Go to Uniswap</h3><p>Head to app.uniswap.org and connect your wallet. Search for $WOKIUS or paste the contract address to find the token.</p></div>
+        <div class="step reveal"><div class="n">3</div><h3>Buy $SPACEMOON</h3><p>Set the amount of ETH you want to swap, confirm the transaction, and your $SPACEMOON will be in your wallet.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BAND -->
+  <section>
+    <div class="wrap">
+      <div class="band reveal">
+        <img src="assets/logo.jpg" alt="Spacemoon" />
+        <h2>Ready for liftoff?</h2>
+        <p>Grab your bag of $SPACEMOON and let's go to the moon!</p>
+        <a class="btn btn-buy" id="bandBuy" href="https://app.uniswap.org/swap?chain=mainnet&inputCurrency=NATIVE&outputCurrency=0xComingSoon" target="_blank" rel="noopener" style="padding:15px 30px;font-size:16px">Buy $SPACEMOON
+          <svg class="ic" viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8"/></svg></a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <a class="brand" href="#top"><img src="assets/logo.jpg" alt="" /><b>Spacemoon</b></a>
+      <div class="foot-links">
+        <a href="#tokenomics">Tokenomics</a>
+        <a href="#how">How to Buy</a>
+        <a id="fTg" href="https://t.me/spacemoononeth" target="_blank" rel="noopener"><svg class="ic" viewBox="0 0 24 24"><path d="M21 4 3 11l5 2 2 6 3-4 5 4z"/></svg>Telegram</a>
+        <a id="fTw" href="https://x.com/spacemoononeth" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.66l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span id="fTwLabel">@SpaceMoononeth</span></a>
+        <a id="fChart" href="https://dexscreener.com/ethereum/0xComingSoon" target="_blank" rel="noopener"><svg class="ic" viewBox="0 0 24 24"><path d="M4 19V5M4 19h16M8 16v-4M12 16V8M16 16v-6"/></svg>Chart</a>
+      </div>
+    </div>
+    <div class="legal">$SPACEMOON is a community token. Crypto is volatile and carries risk; nothing here is financial advice.</div>
+  </div>
+</footer>
+
+<script>
+/* starfield */
+(function(){
+  const c=document.getElementById('sky'),x=c.getContext('2d');
+  let w,h,stars=[],shoot=null;
+  function size(){w=c.width=innerWidth*devicePixelRatio;h=c.height=innerHeight*devicePixelRatio;}
+  function build(){size();const n=Math.min(220,Math.floor(innerWidth*innerHeight/7000));stars=[];
+    for(let i=0;i<n;i++)stars.push({x:Math.random()*w,y:Math.random()*h,r:(Math.random()*1.3+.3)*devicePixelRatio,sp:Math.random()*.02+.004,tw:Math.random()*6.28,b:Math.random()<.08});}
+  function star(s){s.tw+=s.sp;const tw=(Math.sin(s.tw)+1)/2,al=.25+tw*.75;
+    x.globalAlpha=al;x.beginPath();x.arc(s.x,s.y,s.r,0,7);x.fillStyle=s.b?'#bcd4ff':'#fff';x.fill();
+    if(s.b||s.r>1.4*devicePixelRatio){x.globalAlpha=al*.5;x.strokeStyle=s.b?'#bcd4ff':'#fff';x.lineWidth=devicePixelRatio*.6;
+      const g=s.r*3.2;x.beginPath();x.moveTo(s.x-g,s.y);x.lineTo(s.x+g,s.y);x.moveTo(s.x,s.y-g);x.lineTo(s.x,s.y+g);x.stroke();}}
+  function maybeShoot(){if(shoot||Math.random()>.004)return;shoot={x:Math.random()*w*.7,y:Math.random()*h*.35,len:0,max:Math.random()*180+140,sp:Math.random()*9+11,life:1};}
+  function drawShoot(){if(!shoot)return;const a=Math.cos(.7),b=Math.sin(.7);
+    shoot.x+=shoot.sp*a*devicePixelRatio;shoot.y+=shoot.sp*b*devicePixelRatio;shoot.len=Math.min(shoot.max,shoot.len+shoot.sp);shoot.life-=.012;
+    const tx=shoot.x-shoot.len*a*devicePixelRatio,ty=shoot.y-shoot.len*b*devicePixelRatio,grad=x.createLinearGradient(shoot.x,shoot.y,tx,ty);
+    grad.addColorStop(0,'rgba(255,255,255,'+Math.max(0,shoot.life)+')');grad.addColorStop(1,'rgba(188,212,255,0)');
+    x.globalAlpha=1;x.strokeStyle=grad;x.lineWidth=devicePixelRatio*1.6;x.beginPath();x.moveTo(shoot.x,shoot.y);x.lineTo(tx,ty);x.stroke();
+    if(shoot.life<=0||shoot.x>w||shoot.y>h)shoot=null;}
+  function loop(){x.clearRect(0,0,w,h);for(const s of stars)star(s);maybeShoot();drawShoot();requestAnimationFrame(loop);}
+  build();loop();let rt;addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(build,200);});
+})();
+
+/* nav */
+const hdr=document.getElementById('hdr'),burger=document.getElementById('burger'),menu=document.getElementById('menu');
+addEventListener('scroll',()=>hdr.classList.toggle('scrolled',scrollY>20));
+burger.addEventListener('click',()=>{burger.classList.toggle('open');menu.classList.toggle('open');});
+menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{burger.classList.remove('open');menu.classList.remove('open');}));
+
+/* reveal */
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.16});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+/* config */
+let CFG={};
+const ERC20_ABI=["function balanceOf(address) view returns (uint256)","function decimals() view returns (uint8)"];
+fetch('config.json').then(r=>r.json()).then(cfg=>{CFG=cfg;
+  if(cfg.supply){const s=shortSupply(cfg.supply);document.getElementById('tSupply').textContent=s;document.getElementById('mSupply').textContent=s;}
+  if(cfg.ca){document.getElementById('castrip').style.display='flex';document.getElementById('caText').textContent=cfg.ca;}
+  const pcs=cfg.ca?('https://pancakeswap.finance/swap?outputCurrency='+cfg.ca):'#';
+  const buy=cfg.buyUrl||pcs||cfg.chartUrl||'#';['navBuy','heroBuy','bandBuy'].forEach(id=>{const e=document.getElementById(id);if(e)e.href=buy;});
+  setLink('fTg',cfg.telegram);setLink('fChart',cfg.chartUrl);
+  // X stays as a visible placeholder until a real handle is set (no redirect)
+  ['navX','fTw'].forEach(id=>{const e=document.getElementById(id);if(!e)return;
+    if(cfg.twitter){e.href=cfg.twitter;}else{e.href='#';e.removeAttribute('target');e.addEventListener('click',ev=>ev.preventDefault());}});
+  if(cfg.twitter){const h='@'+cfg.twitter.replace(/\/+$/,'').split('/').pop();const lbl=document.getElementById('fTwLabel');if(lbl)lbl.textContent=h;}
+  loadDist();setInterval(loadDist,30000);
+  loadTimer();setInterval(loadTimer,30000);setInterval(tickTimer,1000);
+}).catch(()=>{});
+
+/* next $SPCX reward countdown (contractSellCooldown - elapsed since last sell) */
+const TIMER_ABI=["function nextTimeRewards() view returns (uint256)","function contractSellCooldown() view returns (uint256)"];
+let timerEnd=0,timerReady=false;
+async function loadTimer(){
+  if(!CFG.ca)return;
+  try{
+    const prov=new ethers.JsonRpcProvider(CFG.rewardsRpc||'https://bsc-dataseed.binance.org');
+    const c=new ethers.Contract(CFG.ca,TIMER_ABI,prov);
+    const [el,cd]=await Promise.all([c.nextTimeRewards(),c.contractSellCooldown()]);
+    const remain=Math.max(0,Number(cd)-Number(el));
+    timerEnd=Date.now()+remain*1000;tickTimer();
+  }catch(e){}
+}
+function tickTimer(){
+  const el=document.getElementById('rwdTimer');if(!el)return;
+  const s=Math.max(0,Math.round((timerEnd-Date.now())/1000));
+  if(s<=0){el.textContent='ready';el.classList.add('ready');}
+  else{el.classList.remove('ready');const m=Math.floor(s/60),ss=s%60;el.textContent=(m<10?'0':'')+m+':'+(ss<10?'0':'')+ss;}
+}
+
+/* live $SPCX distributed (on-chain) */
+const DIST_ABI=["function getTotalDividendsDistributed() view returns (uint256)","function getNumberOfDividendTokenHolders() view returns (uint256)"];
+let distShown=0;
+async function loadDist(){
+  if(!CFG.ca)return;
+  try{
+    const prov=new ethers.JsonRpcProvider(CFG.rewardsRpc||'https://bsc-dataseed.binance.org');
+    const c=new ethers.Contract(CFG.ca,DIST_ABI,prov);
+    const [dist,holders]=await Promise.all([
+      c.getTotalDividendsDistributed(),
+      c.getNumberOfDividendTokenHolders().catch(()=>null)
+    ]);
+    const val=Number(ethers.formatUnits(dist,18));
+    animateDist(val);
+    if(holders!=null)document.getElementById('distHolders').textContent=Number(holders).toLocaleString();
+    const price=await spcxPrice();
+    if(price){const usd=val*price;document.getElementById('distUsd').textContent='$'+usd.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});document.getElementById('distUsdWrap').style.display='';}
+  }catch(e){}
+}
+async function spcxPrice(){
+  const t=CFG.rewardToken;if(!t)return 0;
+  try{
+    const r=await fetch('https://api.dexscreener.com/latest/dex/tokens/'+t);
+    const d=await r.json();const pairs=(d.pairs||[]).filter(p=>p.baseToken&&p.baseToken.address&&p.baseToken.address.toLowerCase()===t.toLowerCase()&&p.liquidity&&p.liquidity.usd>500&&Number(p.priceUsd)>0);
+    if(!pairs.length)return 0;
+    pairs.sort((a,b)=>b.liquidity.usd-a.liquidity.usd);
+    return Number(pairs[0].priceUsd);
+  }catch(e){return 0;}
+}
+function distFmt(n){
+  if(n>=1e6)return (n/1e6).toFixed(2)+'M';
+  if(n>=1e3)return (n/1e3).toFixed(2)+'K';
+  if(n>=1)return n.toLocaleString(undefined,{maximumFractionDigits:3});
+  return n.toFixed(4);
+}
+function animateDist(target){
+  const el=document.getElementById('distVal');if(!el)return;
+  const from=distShown,to=target,start=performance.now(),dur=900;
+  function step(t){const k=Math.min(1,(t-start)/dur),e=1-Math.pow(1-k,3);
+    el.textContent=distFmt(from+(to-from)*e);
+    if(k<1)requestAnimationFrame(step);else distShown=to;}
+  requestAnimationFrame(step);
+}
+function setLink(id,url){const e=document.getElementById(id);if(!e)return;if(url)e.href=url;else e.style.display='none';}
+function shortSupply(s){const n=Number(String(s).replace(/[^0-9.]/g,''));if(!n)return s;if(n>=1e9)return (n/1e9).toString().replace(/\.0$/,'')+'B';if(n>=1e6)return (n/1e6)+'M';return s;}
+document.getElementById('caCopy').addEventListener('click',function(){if(!CFG.ca)return;navigator.clipboard.writeText(CFG.ca);const t=this.innerHTML;this.textContent='Copied';setTimeout(()=>this.innerHTML=t,1400);});
+
+</script>
+</body>
+</html>
